@@ -97,6 +97,8 @@ The mean number of steps per day is  : 10766.1886792453
 
 The median number of steps per day is: 10766.1886792453
 
+There is not a significant difference in the mean and median of the cleaned dataset compared to the original data. The impact of the missing value substitution is negligible.
+
 ## Are there differences in activity patterns between weekdays and weekends?
 
 ```r
@@ -120,5 +122,6 @@ ggplot(mean_steps_per_5min_wde_df,
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
 
+There are definite differences in activity levels between weekends and weekdays. During weekends the daytime activity is higher between 1000 and 1730 compared to weekdays. Early morning activity is higher on weekdays than on weekends (500 to 800). 
 
 
