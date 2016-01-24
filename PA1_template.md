@@ -1,5 +1,3 @@
-
-
 ## Introduction
 It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the "quantified self" movement, a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks.
 
@@ -39,12 +37,88 @@ mean_steps_per_day <- mean(steps_per_day_df$steps, na.rm=T)
 median_steps_per_day <- median(steps_per_day_df$steps, na.rm=T)
 ```
 
+The mean number of steps per day is  : 10766.1886792453 
+
+The median number of steps per day is: 10765
+
 ## What is the average daily activity pattern?
 
+```r
+mean_steps_per_5min_df <- aggregate(activity_df$steps, by=list(activity_df$interval), FUN=mean, na.rm=T)
+names(mean_steps_per_5min_df) <- c("interval","mean_steps")
+plot(mean_steps_per_5min_df$interval,
+     mean_steps_per_5min_df$mean_steps, 
+     ylab="Steps", 
+     type="l", 
+     xlab="Interval",
+     main="Average per 5 minute interval",
+     col="orange") 
+```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+
+```r
+interval_with_max_steps <- mean_steps_per_5min_df[mean_steps_per_5min_df$mean_steps==max(mean_steps_per_5min_df$mean_steps),1]
+```
+
+The 5-minute interval, on average across all the days in the dataset, containing the maximum number of steps is: 835 
 
 ## Imputing missing values
 
+```r
+num_rows_missing_vals <- nrow(activity_df) - sum(complete.cases(activity_df))
+```
+There are 2304 missing values in the dataset. 
 
+Missing values are substituted with the interval averages calculated accross all 61 days. 
+
+```r
+# there are 288 intervals per day and 61 full days, merge the dataframes into a new set 
+activity_df_clean <- merge(activity_df,mean_steps_per_5min_df,by.x="interval",by.y="interval",all=FALSE)
+activity_df_clean$steps <- ifelse(is.na(activity_df_clean$steps),
+                           activity_df_clean$mean_steps,activity_df_clean$steps)
+steps_per_day_df_clean <- aggregate(activity_df_clean$steps, by=list(activity_df_clean$date), FUN=sum)
+names(steps_per_day_df_clean) <- c("date","steps")
+hist(steps_per_day_df_clean$steps, 
+     main="Number of steps per day - Cleaned Data",
+     breaks=10, 
+     col="orange", 
+     xlab="Steps")
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
+
+```r
+mean_steps_per_day_clean <- mean(steps_per_day_df_clean$steps)
+median_steps_per_day_clean <- median(steps_per_day_df_clean$steps)
+```
+
+The mean number of steps per day is  : 10766.1886792453 
+
+The median number of steps per day is: 10766.1886792453
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```r
+activity_df_clean$date <- strptime(activity_df_clean$date, "%Y-%m-%d")
+activity_df_clean$weekend_or_day <- as.factor(ifelse(weekdays(activity_df_clean$date) %in% 
+                                    c("Saturday","Sunday"),"weekend","weekday"))
+mean_steps_per_5min_wde_df <- aggregate(activity_df_clean$steps,
+                              by=list(activity_df_clean$weekend_or_day,activity_df_clean$interval), 
+                              FUN=mean, 
+                              na.rm=T)
+names(mean_steps_per_5min_wde_df) <- c("weekend_or_day","interval","mean_steps")
+# use the ggplot2 plotting system
+library(ggplot2)
+ggplot(mean_steps_per_5min_wde_df, 
+       aes(interval, mean_steps)) +	   
+	   geom_line(colour="orange") + 
+	   facet_grid(weekend_or_day ~ .) + 
+	   labs(x="5-minute interval") + 
+	   labs(y="Number of steps")
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
+
+
+

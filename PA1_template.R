@@ -53,25 +53,19 @@ median_steps_per_day_clean <- median(steps_per_day_df_clean$steps)
 ########################################################################################
 # date is a factor, convert to date data type
 activity_df_clean$date <- strptime(activity_df_clean$date, "%Y-%m-%d")
-# get the 2 data subsets (for weekdays and for weekends)
-Weekdays_df <- subset(activity_df_clean,weekdays(activity_df_clean$date) %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"))
-Weekends_df <- subset(activity_df_clean,weekdays(activity_df_clean$date) %in% c("Saturday","Sunday"))
-mean_steps_per_5min_weekday_df <- aggregate(Weekdays_df$steps, by=list(Weekdays_df$interval), FUN=mean, na.rm=T)
-mean_steps_per_5min_weekend_df <- aggregate(Weekends_df$steps, by=list(Weekends_df$interval), FUN=mean, na.rm=T)
-names(mean_steps_per_5min_weekday_df) <- c("interval","mean_steps")
-names(mean_steps_per_5min_weekend_df) <- c("interval","mean_steps")
-plot(mean_steps_per_5min_weekday_df$interval,
-     mean_steps_per_5min_weekday_df$mean_steps, 
-     ylab="Steps", 
-     type="l", 
-     xlab="Interval",
-     main="Average per 5 minute interval on Weekdays",
-     col="red") 
-plot(mean_steps_per_5min_weekend_df$interval,
-     mean_steps_per_5min_weekend_df$mean_steps, 
-     ylab="Steps", 
-     type="l", 
-     xlab="Interval",
-     main="Average per 5 minute interval on Weekends",
-     col="red") 
+activity_df_clean$weekend_or_day <- as.factor(ifelse(weekdays(activity_df_clean$date) %in% 
+                                    c("Saturday","Sunday"),"weekend","weekday"))
+mean_steps_per_5min_wde_df <- aggregate(activity_df_clean$steps, 
+                              by=list(activity_df_clean$weekend_or_day,activity_df_clean$interval), 
+                              FUN=mean, 
+                              na.rm=T)
+names(mean_steps_per_5min_wde_df) <- c("weekend_or_day","interval","mean_steps")
+# use the ggplot2 plotting system
+library(ggplot2)
+ggplot(mean_steps_per_5min_wde_df, 
+       aes(interval, mean_steps)) +	   
+	   geom_line(colour="orange") + 
+	   facet_grid(weekend_or_day ~ .) + 
+	   labs(x="5-minute interval") + 
+	   labs(y="Number of steps")
 
