@@ -14,13 +14,15 @@ The variables included in this dataset are:
 The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
 
 ## Loading and preprocessing the data
-```{r cache=TRUE}
+
+```r
 setwd("~/Personal-Folder/Study-Git/reprod-research-wk1a/RepData_PeerAssessment1")
 activity_df <- read.csv("activity.csv", header=T, sep=",")
 ```
 
 ## What is mean total number of steps taken per day?
-```{r cache=TRUE}
+
+```r
 steps_per_day_df <- aggregate(activity_df$steps, by=list(activity_df$date), FUN=sum)
 names(steps_per_day_df) <- c("date","steps")
 hist(steps_per_day_df$steps, 
@@ -28,6 +30,11 @@ hist(steps_per_day_df$steps,
      breaks=10, 
      col="orange", 
      xlab="Steps")
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png)
+
+```r
 mean_steps_per_day <- mean(steps_per_day_df$steps, na.rm=T)
 median_steps_per_day <- median(steps_per_day_df$steps, na.rm=T)
 ```
